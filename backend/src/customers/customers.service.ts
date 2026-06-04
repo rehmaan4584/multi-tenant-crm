@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import {
   ActivityAction,
@@ -7,6 +11,8 @@ import {
 import { ActivityLogService } from '../activity-log/activity-log.service';
 import { AuthenticatedUser } from '../auth/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
+import { MAX_ACTIVE_ASSIGNMENTS_PER_USER } from './customers.constants';
+import { AssignCustomerDto } from './dto/assign-customer.dto';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
@@ -249,4 +255,86 @@ export class CustomersService {
     });
   }
 
+  async assign(
+    currentUser: AuthenticatedUser,
+    customerId: string,
+    dto: AssignCustomerDto,
+  ) {
+    const organizationId = currentUser.organizationId;
+
+    return this.prisma.$transaction(async (tx) => {
+      const lockedUsers = await tx.$queryRaw<{ id: string }[]>(
+        Prisma.sql`
+          SELECT id FROM "User"
+          WHERE id = ${dto.assignedToId}
+            AND "organizationId" = ${organizationId}
+          FOR UPDATE
+        `,
+      );
+
+      if (lockedUsers.length === 0) {
+        throw new NotFoundException('Assignee not found in this organization');
+      }
+
+      const customer = await tx.customer.findFirst({
+        where: {
+          id: customerId,
+          ...this.activeWhere(organizationId),
+        },
+        select: { id: true, assignedToId: true },
+      });
+
+      if (!customer) {
+        throw new NotFoundException('Customer not found');
+      }
+
+      if (customer.assignedToId === dto.assignedToId) {
+        return tx.customer.findFirstOrThrow({
+          where: { id: customerId },
+          select: customerSelect,
+        });
+      }
+
+      const activeAssignmentCount = await tx.customer.count({
+        where: {
+          assignedToId: dto.assignedToId,
+          organizationId,
+          deletedAt: null,
+        },
+      });
+
+      if (activeAssignmentCount >= MAX_ACTIVE_ASSIGNMENTS_PER_USER) {
+        throw new ConflictException(
+          `User cannot have more than ${MAX_ACTIVE_ASSIGNMENTS_PER_USER} active customer assignments`,
+        );
+      }
+
+      await tx.customer.updateMany({
+        where: {
+          id: customerId,
+          ...this.activeWhere(organizationId),
+        },
+        data: { assignedToId: dto.assignedToId },
+      });
+
+      const assigned = await tx.customer.findFirstOrThrow({
+        where: { id: customerId },
+        select: customerSelect,
+      });
+
+      await this.activityLog.log(
+        {
+          entityType: ActivityEntityType.CUSTOMER,
+          entityId: assigned.id,
+          action: ActivityAction.CUSTOMER_ASSIGNED,
+          performedBy: currentUser.id,
+          organizationId,
+        },
+        tx,
+      );
+
+      return assigned;
+    });
+  }
 }
+

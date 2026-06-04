@@ -1,0 +1,1 @@
+export const MAX_ACTIVE_ASSIGNMENTS_PER_USER = 5;

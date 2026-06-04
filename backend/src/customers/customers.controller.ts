@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AuthenticatedUser } from '../auth/interfaces/jwt-payload.interface';
 import { CustomersService } from './customers.service';
+import { AssignCustomerDto } from './dto/assign-customer.dto';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
@@ -42,6 +43,15 @@ export class CustomersController {
     @Body() dto: CreateCustomerDto,
   ) {
     return this.customersService.create(user, dto);
+  }
+
+  @Patch(':id/assign')
+  assign(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: AssignCustomerDto,
+  ) {
+    return this.customersService.assign(user, id, dto);
   }
 
   @Patch(':id')
