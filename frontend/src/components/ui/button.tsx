@@ -6,7 +6,8 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants = {
   primary: 'bg-blue-600 text-white hover:bg-blue-700',
-  secondary: 'border border-gray-300 bg-white hover:bg-gray-50',
+  secondary:
+    'border border-gray-400 bg-white text-gray-800 hover:bg-gray-100',
   danger: 'bg-red-600 text-white hover:bg-red-700',
 };
 

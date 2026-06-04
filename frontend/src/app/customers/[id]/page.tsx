@@ -140,7 +140,7 @@ export default function CustomerDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{customer.name}</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">{customer.name}</h1>
         <Link href="/customers" className="text-sm text-blue-600 hover:underline">
           Back to list
         </Link>
@@ -150,15 +150,19 @@ export default function CustomerDetailPage() {
 
       <form
         onSubmit={handleUpdate}
-        className="space-y-3 rounded border bg-white p-4"
+        className="space-y-3 rounded border border-gray-200 bg-white p-4 text-gray-900 shadow-sm"
       >
-        <h2 className="font-medium">Edit customer</h2>
+        <h2 className="font-medium text-gray-900">Edit customer</h2>
         <div>
-          <label className="mb-1 block text-sm font-medium">Name</label>
+          <label className="mb-1 block text-sm font-medium text-gray-800">
+            Name
+          </label>
           <Input value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Email</label>
+          <label className="mb-1 block text-sm font-medium text-gray-800">
+            Email
+          </label>
           <Input
             type="email"
             value={email}
@@ -167,7 +171,9 @@ export default function CustomerDetailPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Phone</label>
+          <label className="mb-1 block text-sm font-medium text-gray-800">
+            Phone
+          </label>
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
         <Button type="submit" disabled={updateMutation.isPending}>
@@ -175,10 +181,10 @@ export default function CustomerDetailPage() {
         </Button>
       </form>
 
-      <div className="space-y-2 rounded border bg-white p-4">
-        <h2 className="font-medium">Assign to user</h2>
+      <div className="space-y-2 rounded border border-gray-200 bg-white p-4 text-gray-900 shadow-sm">
+        <h2 className="font-medium text-gray-900">Assign to user</h2>
         <select
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
           value={assigneeId}
           onChange={(e) => setAssigneeId(e.target.value)}
         >
@@ -200,8 +206,8 @@ export default function CustomerDetailPage() {
         </Button>
       </div>
 
-      <div className="space-y-3 rounded border bg-white p-4">
-        <h2 className="font-medium">Notes</h2>
+      <div className="space-y-3 rounded border border-gray-200 bg-white p-4 text-gray-900 shadow-sm">
+        <h2 className="font-medium text-gray-900">Notes</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -225,8 +231,11 @@ export default function CustomerDetailPage() {
         )}
         <ul className="space-y-2">
           {notesQuery.data?.map((note) => (
-            <li key={note.id} className="rounded border bg-gray-50 p-3 text-sm">
-              <p>{note.content}</p>
+            <li
+              key={note.id}
+              className="rounded border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900"
+            >
+              <p className="text-gray-900">{note.content}</p>
               <p className="mt-1 text-xs text-gray-500">
                 {note.createdBy.name} ·{' '}
                 {new Date(note.createdAt).toLocaleString()}

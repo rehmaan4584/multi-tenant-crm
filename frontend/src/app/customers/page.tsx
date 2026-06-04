@@ -39,7 +39,7 @@ export default function CustomersPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Customers</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Customers</h1>
         <Link href="/customers/new">
           <Button>New customer</Button>
         </Link>
@@ -63,9 +63,9 @@ export default function CustomersPage() {
 
       {data && (
         <>
-          <div className="overflow-hidden rounded border bg-white">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50 text-gray-600">
+          <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
+            <table className="w-full text-left text-sm text-gray-900">
+              <thead className="border-b border-gray-200 bg-gray-50 text-gray-700">
                 <tr>
                   <th className="px-3 py-2">Name</th>
                   <th className="px-3 py-2">Email</th>
@@ -82,10 +82,10 @@ export default function CustomersPage() {
                   </tr>
                 ) : (
                   data.data.map((c) => (
-                    <tr key={c.id} className="border-b last:border-0">
-                      <td className="px-3 py-2">{c.name}</td>
-                      <td className="px-3 py-2">{c.email}</td>
-                      <td className="px-3 py-2">
+                    <tr key={c.id} className="border-b border-gray-100 last:border-0">
+                      <td className="px-3 py-2 text-gray-900">{c.name}</td>
+                      <td className="px-3 py-2 text-gray-900">{c.email}</td>
+                      <td className="px-3 py-2 text-gray-700">
                         {c.assignedTo?.name ?? '—'}
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -104,7 +104,7 @@ export default function CustomersPage() {
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">
+            <span className="font-medium text-gray-700">
               Page {data.meta.page} of {data.meta.totalPages} ({data.meta.total}{' '}
               total)
             </span>

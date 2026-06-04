@@ -45,15 +45,22 @@ export default function NewCustomerPage() {
 
   return (
     <div className="mx-auto max-w-md space-y-4">
-      <h1 className="text-2xl font-semibold">New customer</h1>
+      <h1 className="text-2xl font-semibold text-gray-900">New customer</h1>
       {error && <Alert>{error}</Alert>}
-      <form onSubmit={handleSubmit} className="space-y-3 rounded border bg-white p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-3 rounded border border-gray-200 bg-white p-4 text-gray-900 shadow-sm"
+      >
         <div>
-          <label className="mb-1 block text-sm font-medium">Name</label>
+          <label className="mb-1 block text-sm font-medium text-gray-800">
+            Name
+          </label>
           <Input value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Email</label>
+          <label className="mb-1 block text-sm font-medium text-gray-800">
+            Email
+          </label>
           <Input
             type="email"
             value={email}
@@ -62,7 +69,9 @@ export default function NewCustomerPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Phone</label>
+          <label className="mb-1 block text-sm font-medium text-gray-800">
+            Phone
+          </label>
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
         <div className="flex gap-2">
