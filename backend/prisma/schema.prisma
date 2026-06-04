@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider     = "prisma-client"
   output       = "../generated/prisma"
@@ -19,80 +14,72 @@ enum UserRole {
 }
 
 model Organization {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
   users     User[]
   customers Customer[]
   notes     Note[]
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 }
 
 model User {
-  id    String @id @default(uuid())
-
-  name  String
-  email String @unique
-
-  role  UserRole
-  createdNotes Note[]
-  
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  id                String     @id @default(uuid())
+  name              String
+  email             String
+  passwordHash      String
+  role              UserRole
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id])
   assignedCustomers Customer[]
-  createdAt DateTime @default(now())
+  createdNotes      Note[]
+  createdAt         DateTime   @default(now())
+
+  @@unique([organizationId, email])
 }
 
 model Customer {
-  id    String @id @default(uuid())
-
-  name  String
-  email String
-  phone String?
+  id             String       @id @default(uuid())
+  name           String
+  email          String
+  phone          String?
   organizationId String
-  assignedToId String?
+  assignedToId   String?
+  assignedTo     User?        @relation(fields: [assignedToId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+  notes          Note[]
 
-assignedTo User? @relation(fields: [assignedToId],references: [id])
-
-organization Organization @relation(fields: [organizationId],references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  notes     Note[]
-  deletedAt DateTime?
-  @@index([organizationId])
-  @@index([deletedAt])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, name])
+  @@index([organizationId, email])
+  @@index([assignedToId, deletedAt])
 }
 
 model Note {
-  id String @id @default(uuid())
-
-  content String
-
-  customerId String
-  customer Customer @relation(fields: [customerId],references: [id])
-
+  id             String       @id @default(uuid())
+  content        String
+  customerId     String
+  customer       Customer     @relation(fields: [customerId], references: [id])
   organizationId String
-  organization Organization @relation(fields: [organizationId],references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdById    String
+  createdBy      User         @relation(fields: [createdById], references: [id])
+  createdAt      DateTime     @default(now())
 
-  createdById String
-  createdBy User @relation(fields: [createdById],references: [id])
-
-  createdAt DateTime @default(now())
+  @@index([customerId])
+  @@index([organizationId])
 }
 
 model ActivityLog {
-  id String @id @default(uuid())
-
-  entityType String
-  entityId String
-
-  action String
-
-  performedBy String
-
+  id             String   @id @default(uuid())
+  entityType     String
+  entityId       String
+  action         String
+  performedBy    String
   organizationId String
-
-  timestamp DateTime @default(now())
+  timestamp      DateTime @default(now())
 
   @@index([organizationId])
   @@index([entityType, entityId])
