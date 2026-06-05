@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --no-audit --progress=false
 
 COPY prisma ./prisma
 COPY prisma.config.ts ./
@@ -13,7 +13,7 @@ RUN npx prisma generate
 
 COPY . .
 RUN npm run build
-
+RUN find ./dist/generated -type f -name '*.js' -exec sed -i 's/\.ts"/.js"/g' {} +
 FROM node:22-alpine AS runner
 
 WORKDIR /app

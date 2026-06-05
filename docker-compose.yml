@@ -40,7 +40,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:3000
+        NEXT_PUBLIC_API_URL: https://rehman-crm-api.duckdns.org
         NEXT_PUBLIC_DEMO_ORG_ID: 00000000-0000-0000-0000-000000000001
     container_name: crm-web
     restart: unless-stopped
