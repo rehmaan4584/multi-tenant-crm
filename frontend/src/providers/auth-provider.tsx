@@ -42,9 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
+      const organizationId =
+        process.env.NEXT_PUBLIC_DEMO_ORG_ID ??
+        '00000000-0000-0000-0000-000000000001';
+
       const res = await apiFetch<LoginResponse>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, organizationId }),
       });
       setAuth(res.accessToken, res.user);
       setToken(res.accessToken);

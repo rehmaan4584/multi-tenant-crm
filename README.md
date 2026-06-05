@@ -77,6 +77,7 @@ UI: http://localhost:3002 (or next free port)
 ## 2. Multi-tenancy isolation
 
 - Each user belongs to **one** `Organization`.
+- **Login** requires `organizationId` + `email` (scoped lookup via `@@unique([organizationId, email])`) so the same email in two orgs cannot log into the wrong tenant.
 - JWT payload includes `organizationId`; `JwtStrategy` re-validates the user still exists in that org.
 - All customer/user/note operations use `where: { organizationId: currentUser.organizationId }`.
 - Updates use `updateMany` with `id` + `organizationId` so cross-tenant ID guessing returns 404.
