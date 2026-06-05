@@ -1,35 +1,49 @@
 # Multi-Tenant CRM
 
-Minimal multi-tenant CRM built for a full-stack take-home assignment: **NestJS**, **PostgreSQL**, **Prisma**, **Next.js**, and **JWT** auth with organization-scoped data isolation.
+Full-stack take-home assignment: a minimal multi-tenant CRM using **NestJS**, **PostgreSQL**, **Prisma**, **Next.js**, and **JWT** auth with organization-scoped data isolation.
 
-## Live URLs
+**Repository:** https://github.com/rehmaan4584/multi-tenant-crm
+
+## Live URLs (deployed)
 
 | Service | URL |
 |---------|-----|
-| Frontend | _Add after deploy (e.g. Vercel)_ |
-| Backend API | _Add after deploy (e.g. AWS App Runner / ECS)_ |
-| Swagger | `{API_URL}/api` |
+| Frontend | https://rehman-crm.duckdns.org |
+| Backend API | https://rehman-crm-api.duckdns.org |
+| Swagger | https://rehman-crm-api.duckdns.org/api |
 
 ## Quick start (Docker — recommended)
 
 **Requirements:** Docker & Docker Compose
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/rehmaan4584/multi-tenant-crm.git
 cd multi-tenant-crm
 docker compose up --build
 ```
 
-| Service | URL |
-|---------|-----|
-| Web UI | http://localhost:3001 |
-| API | http://localhost:3000 |
+On first start, the API container runs **migrations** and **seed data** automatically.
+
+| Service | Local URL |
+|---------|-----------|
+| Frontend | http://localhost:3001 |
+| Backend API | http://localhost:3000 |
 | Swagger | http://localhost:3000/api |
 
-**Demo login**
+**Demo login (UI)**
 
 - Admin: `admin@acme.test` / `password123`
 - Member: `member@acme.test` / `password123`
+
+**Swagger / API login** (`POST /auth/login`):
+
+```json
+{
+  "organizationId": "00000000-0000-0000-0000-000000000001",
+  "email": "admin@acme.test",
+  "password": "password123"
+}
+```
 
 Stop: `docker compose down`  
 Reset DB: `docker compose down -v`
@@ -71,7 +85,7 @@ UI: http://localhost:3002 (or next free port)
 - **Layers:** Controllers → Services → Prisma (no fat controllers).
 - **Auth:** JWT (`sub`, `organizationId`, `role`) via Passport; guards on protected routes.
 - **Multi-tenancy:** Every query filters by `organizationId` from the token — never trust client-supplied org IDs for authorization.
-- **Activity log:** Written in the same DB transaction as the business action where possible.
+- **Activity log:** Stored in the database on customer/note events (backend audit trail; no separate UI).
 - **API docs:** Swagger/OpenAPI at `/api` (production improvement).
 
 ## 2. Multi-tenancy isolation
@@ -160,16 +174,19 @@ multi-tenant-crm/
 | Customers | CRUD, search, pagination, soft delete, restore, `PATCH /:id/assign` |
 | Notes | `GET/POST /customers/:id/notes` |
 
-## AWS deployment (outline)
+## Deployment notes
 
-Dockerfiles are production-oriented; typical AWS layout:
+**Current production setup:** EC2 + Docker Compose + Nginx reverse proxy + DuckDNS + HTTPS (Certbot).
 
-- **RDS PostgreSQL** — database
+- Frontend: `rehman-crm.duckdns.org` → port 3001
+- API: `rehman-crm-api.duckdns.org` → port 3000
+
+**At larger scale on AWS:**
+
+- **RDS PostgreSQL** — database (replaces compose `db` service)
 - **ECR + ECS / App Runner** — `backend/Dockerfile`
 - **Amplify / S3+CloudFront / ECS** — `frontend/Dockerfile` (set `NEXT_PUBLIC_API_URL` to public API URL)
 
-`docker-compose.yml` is for **local/demo**; on AWS you replace the `db` service with RDS and deploy images separately.
-
 ## License
 
-Private take-home submission.
+Private.
