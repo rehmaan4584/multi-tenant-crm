@@ -23,8 +23,7 @@ RUN apk add --no-cache openssl
 ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
-RUN npm ci
-
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/generated ./generated
 COPY --from=builder /app/prisma ./prisma
