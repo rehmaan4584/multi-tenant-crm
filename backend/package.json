@@ -20,7 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "build:seed": "tsc -p tsconfig.seed.json",
+    "prisma:seed:prod": "node dist/prisma/seed.js"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

@@ -6,7 +6,7 @@ npx prisma migrate deploy
 
 if [ "${RUN_SEED:-true}" = "true" ]; then
   echo "Seeding database..."
-  npm run prisma:seed || echo "Seed skipped or already applied."
+  node dist/prisma/seed.js || echo "Seed skipped or already applied."
 fi
 
 echo "Starting API..."
