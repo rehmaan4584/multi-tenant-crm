@@ -33,23 +33,25 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="hidden w-1/2 flex-col justify-between bg-sidebar p-10 text-white lg:flex">
-        <div>
-          <span className="text-xl font-semibold tracking-tight">
-            Multi-Tenant CRM
-          </span>
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold leading-tight">
-            Manage customers across your organization
-          </h1>
-          <p className="mt-4 max-w-md text-slate-300">
-            Role-based access, customer assignment, and notes — all scoped to{' '}
-            {DEMO_ORG_NAME}.
-          </p>
-        </div>
-        <p className="text-xs text-slate-500">Portfolio demo project</p>
-      </div>
+      <div className="hidden w-1/2 flex-col bg-sidebar p-10 text-white lg:flex">
+  <div>
+    <span className="text-xl font-semibold tracking-tight">
+      Multi-Tenant CRM
+    </span>
+  </div>
+  <div className="flex flex-1 flex-col items-start justify-center">
+    <h1 className="text-3xl font-bold leading-tight">
+      Manage customers across your organization
+    </h1>
+    <p className="mt-4 max-w-md text-slate-300">
+      Role-based access, customer assignment, and notes — all scoped to{' '}
+      {DEMO_ORG_NAME}.
+    </p>
+    <p className="mt-6 text-xs text-slate-500">
+      Secure multi-tenant workspace for modern teams
+    </p>
+  </div>
+</div>
 
       <div className="flex flex-1 items-center justify-center bg-surface-muted p-6">
         <form
