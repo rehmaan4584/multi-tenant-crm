@@ -4,12 +4,16 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { ApiRequestError, apiFetch } from '@/lib/api';
 import type { Customer, Note, UserListItem } from '@/lib/types';
 import { useAuth } from '@/providers/auth-provider';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +26,7 @@ export default function CustomerDetailPage() {
   const [assigneeId, setAssigneeId] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+
   const customerQuery = useQuery({
     queryKey: ['customer', id],
     queryFn: () => apiFetch<Customer>(`/customers/${id}`, { token }),
@@ -61,11 +66,13 @@ export default function CustomerDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['customer', id] });
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       setFormError(null);
+      toast.success('Customer updated');
     },
-    onError: (err) =>
-      setFormError(
-        err instanceof ApiRequestError ? err.message : 'Update failed',
-      ),
+    onError: (err) => {
+      const msg = err instanceof ApiRequestError ? err.message : 'Update failed';
+      setFormError(msg);
+      toast.error(msg);
+    },
   });
 
   const assignMutation = useMutation({
@@ -79,11 +86,13 @@ export default function CustomerDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['customer', id] });
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       setFormError(null);
+      toast.success('Customer assigned');
     },
-    onError: (err) =>
-      setFormError(
-        err instanceof ApiRequestError ? err.message : 'Assign failed',
-      ),
+    onError: (err) => {
+      const msg = err instanceof ApiRequestError ? err.message : 'Assign failed';
+      setFormError(msg);
+      toast.error(msg);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -91,12 +100,14 @@ export default function CustomerDetailPage() {
       apiFetch(`/customers/${id}`, { method: 'DELETE', token }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
+      toast.success('Customer deleted');
       window.location.href = '/customers';
     },
-    onError: (err) =>
-      setFormError(
-        err instanceof ApiRequestError ? err.message : 'Delete failed',
-      ),
+    onError: (err) => {
+      const msg = err instanceof ApiRequestError ? err.message : 'Delete failed';
+      setFormError(msg);
+      toast.error(msg);
+    },
   });
 
   const noteMutation = useMutation({
@@ -110,11 +121,13 @@ export default function CustomerDetailPage() {
       setNoteContent('');
       queryClient.invalidateQueries({ queryKey: ['notes', id] });
       setFormError(null);
+      toast.success('Note added');
     },
-    onError: (err) =>
-      setFormError(
-        err instanceof ApiRequestError ? err.message : 'Note failed',
-      ),
+    onError: (err) => {
+      const msg = err instanceof ApiRequestError ? err.message : 'Note failed';
+      setFormError(msg);
+      toast.error(msg);
+    },
   });
 
   function handleUpdate(e: FormEvent) {
@@ -124,7 +137,13 @@ export default function CustomerDetailPage() {
   }
 
   if (customerQuery.isLoading) {
-    return <p className="text-gray-500">Loading customer...</p>;
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
   }
 
   if (customerQuery.isError || !customer) {
@@ -138,53 +157,57 @@ export default function CustomerDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">{customer.name}</h1>
-        <Link href="/customers" className="text-sm text-blue-600 hover:underline">
+        <div>
+          <h1 className="text-2xl font-semibold text-text">{customer.name}</h1>
+          <p className="mt-1 text-sm text-text-muted">{customer.email}</p>
+        </div>
+        <Link
+          href="/customers"
+          className="text-sm font-medium text-brand-600 hover:text-brand-700"
+        >
           Back to list
         </Link>
       </div>
 
       {formError && <Alert>{formError}</Alert>}
 
-      <form
-        onSubmit={handleUpdate}
-        className="space-y-3 rounded border border-gray-200 bg-white p-4 text-gray-900 shadow-sm"
-      >
-        <h2 className="font-medium text-gray-900">Edit customer</h2>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-800">
-            Name
-          </label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-800">
-            Email
-          </label>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-800">
-            Phone
-          </label>
-          <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </div>
-        <Button type="submit" disabled={updateMutation.isPending}>
-          {updateMutation.isPending ? 'Saving...' : 'Save changes'}
-        </Button>
-      </form>
+      <Card>
+        <form onSubmit={handleUpdate} className="space-y-3">
+          <h2 className="font-medium text-text">Edit customer</h2>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-text">
+              Name
+            </label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-text">
+              Email
+            </label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-text">
+              Phone
+            </label>
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </div>
+          <Button type="submit" disabled={updateMutation.isPending}>
+            {updateMutation.isPending ? 'Saving...' : 'Save changes'}
+          </Button>
+        </form>
+      </Card>
 
-      <div className="space-y-2 rounded border border-gray-200 bg-white p-4 text-gray-900 shadow-sm">
-        <h2 className="font-medium text-gray-900">Assign to user</h2>
-        <select
-          className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+      <Card className="space-y-2">
+        <h2 className="font-medium text-text">Assign to user</h2>
+        <Select
           value={assigneeId}
           onChange={(e) => setAssigneeId(e.target.value)}
         >
@@ -194,7 +217,7 @@ export default function CustomerDetailPage() {
               {u.name} ({u.role})
             </option>
           ))}
-        </select>
+        </Select>
         <Button
           disabled={!assigneeId || assignMutation.isPending}
           onClick={() => {
@@ -204,10 +227,10 @@ export default function CustomerDetailPage() {
         >
           {assignMutation.isPending ? 'Assigning...' : 'Assign'}
         </Button>
-      </div>
+      </Card>
 
-      <div className="space-y-3 rounded border border-gray-200 bg-white p-4 text-gray-900 shadow-sm">
-        <h2 className="font-medium text-gray-900">Notes</h2>
+      <Card className="space-y-3">
+        <h2 className="font-medium text-text">Notes</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -227,26 +250,26 @@ export default function CustomerDetailPage() {
           </Button>
         </form>
         {notesQuery.isLoading && (
-          <p className="text-sm text-gray-500">Loading notes...</p>
+          <p className="text-sm text-text-muted">Loading notes...</p>
         )}
         <ul className="space-y-2">
           {notesQuery.data?.map((note) => (
             <li
               key={note.id}
-              className="rounded border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900"
+              className="rounded-lg border border-border bg-surface-muted p-3 text-sm"
             >
-              <p className="text-gray-900">{note.content}</p>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="text-text">{note.content}</p>
+              <p className="mt-1 text-xs text-text-muted">
                 {note.createdBy.name} ·{' '}
                 {new Date(note.createdAt).toLocaleString()}
               </p>
             </li>
           ))}
           {notesQuery.data?.length === 0 && (
-            <p className="text-sm text-gray-500">No notes yet</p>
+            <p className="text-sm text-text-muted">No notes yet</p>
           )}
         </ul>
-      </div>
+      </Card>
 
       <Button
         variant="danger"

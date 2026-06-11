@@ -5,10 +5,10 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variants = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-700',
+  primary: 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm',
   secondary:
-    'border border-gray-400 bg-white text-gray-800 hover:bg-gray-100',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
+    'border border-border bg-surface text-text hover:bg-surface-muted shadow-sm',
+  danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
 };
 
 export function Button({
@@ -20,7 +20,7 @@ export function Button({
 }: Props) {
   return (
     <button
-      className={`rounded px-3 py-2 text-sm font-medium disabled:opacity-50 ${variants[variant]} ${className}`}
+      className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${variants[variant]} ${className}`}
       disabled={disabled}
       {...props}
     >

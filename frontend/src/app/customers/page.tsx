@@ -10,6 +10,7 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { TableSkeleton } from '@/components/ui/skeleton';
 
 export default function CustomersPage() {
   const { token } = useAuth();
@@ -39,7 +40,12 @@ export default function CustomersPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-gray-900">Customers</h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-text">Customers</h1>
+          <p className="mt-1 text-sm text-text-muted">
+            Manage and assign customers to your team
+          </p>
+        </div>
         <Link href="/customers/new">
           <Button>New customer</Button>
         </Link>
@@ -54,7 +60,8 @@ export default function CustomersPage() {
         }}
       />
 
-      {isLoading && <p className="text-sm text-gray-500">Loading customers...</p>}
+      {isLoading && <TableSkeleton rows={5} cols={4} />}
+
       {isError && (
         <Alert>
           {error instanceof Error ? error.message : 'Failed to load customers'}
@@ -63,35 +70,48 @@ export default function CustomersPage() {
 
       {data && (
         <>
-          <div className="overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
-            <table className="w-full text-left text-sm text-gray-900">
-              <thead className="border-b border-gray-200 bg-gray-50 text-gray-700">
+          <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-border bg-surface-muted text-text-muted">
                 <tr>
-                  <th className="px-3 py-2">Name</th>
-                  <th className="px-3 py-2">Email</th>
-                  <th className="px-3 py-2">Assigned to</th>
-                  <th className="px-3 py-2" />
+                  <th className="px-4 py-3 font-medium">Name</th>
+                  <th className="px-4 py-3 font-medium">Email</th>
+                  <th className="px-4 py-3 font-medium">Assigned to</th>
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
                 {data.data.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-3 py-6 text-center text-gray-500">
-                      No customers found
+                    <td colSpan={4} className="px-4 py-12 text-center">
+                      <p className="font-medium text-text">No customers found</p>
+                      <p className="mt-1 text-sm text-text-muted">
+                        {debouncedSearch
+                          ? 'Try a different search term'
+                          : 'Get started by creating your first customer'}
+                      </p>
+                      {!debouncedSearch && (
+                        <Link href="/customers/new" className="mt-4 inline-block">
+                          <Button>Create customer</Button>
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ) : (
                   data.data.map((c) => (
-                    <tr key={c.id} className="border-b border-gray-100 last:border-0">
-                      <td className="px-3 py-2 text-gray-900">{c.name}</td>
-                      <td className="px-3 py-2 text-gray-900">{c.email}</td>
-                      <td className="px-3 py-2 text-gray-700">
+                    <tr
+                      key={c.id}
+                      className="border-b border-border last:border-0 hover:bg-surface-muted/50"
+                    >
+                      <td className="px-4 py-3 font-medium text-text">{c.name}</td>
+                      <td className="px-4 py-3 text-text-muted">{c.email}</td>
+                      <td className="px-4 py-3 text-text-muted">
                         {c.assignedTo?.name ?? '—'}
                       </td>
-                      <td className="px-3 py-2 text-right">
+                      <td className="px-4 py-3 text-right">
                         <Link
                           href={`/customers/${c.id}`}
-                          className="text-blue-600 hover:underline"
+                          className="font-medium text-brand-600 hover:text-brand-700"
                         >
                           View
                         </Link>
@@ -104,7 +124,7 @@ export default function CustomersPage() {
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-gray-700">
+            <span className="text-text-muted">
               Page {data.meta.page} of {data.meta.totalPages} ({data.meta.total}{' '}
               total)
             </span>

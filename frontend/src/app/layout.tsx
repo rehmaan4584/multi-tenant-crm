@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Multi-Tenant CRM',
-  description: 'BXTrack take-home CRM',
+  description: 'Multi-tenant CRM with role-based access',
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="light" suppressHydrationWarning>
-      <body className="min-h-screen bg-gray-100 text-gray-900 antialiased">
+      <body className="min-h-screen antialiased">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
